@@ -12,15 +12,7 @@ export const getElement = (cube: any[][][], x: number, y: number, z: number): an
   return cube[x][y][z]
 }
 
-
 type Coords = string | number
-
-const coordsToInt = (coords: Coords): number => {
-  if (typeof coords === 'string') {
-    return parseInt(coords)
-  }
-  return coords
-}
 
 const padLeft = (char: string, length: number) => (input: string): string => {
   let result = input
@@ -39,19 +31,25 @@ const coordsToString = (coords: Coords): string => {
   return padLeftCoords(`${coords}`)
 }
 
-
 type CoordsTally = {
   middles: number;
   ends: number;
 }
 
-const tallyCoords = (coords: string): CoordsTally => {
-  const middles = coords.replace(/[02]+/g, '').length
-  return {
-    middles,
-    ends: 3 - middles,
+const tallyCoords = (() => {
+  const cache: Map<string, CoordsTally> = new Map()
+  return (coords: string): CoordsTally => {
+    if (!cache.has(coords)) {
+      const middles = coords.replace(/[02]+/g, '').length
+      const tally: CoordsTally = {
+        middles,
+        ends: 3 - middles,
+      }
+      cache.set(coords, tally)
+    }
+    return <CoordsTally>cache.get(coords)
   }
-}
+})()
 
 export const isCenter = (coords: Coords) => {
   const tally: CoordsTally = tallyCoords(coordsToString(coords))
