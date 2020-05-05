@@ -108,26 +108,62 @@ export const nextCorner = (corner: Corner, ccw?: boolean): Corner => {
     )
 }
 
-const completeRedCorner = (corner: Corner): Corner => {
-  switch (corner.right) {
-    case 'w':
-      return new Corner(corner.axis, corner.right, 'b')
-    case '-b':
-      return new Corner(corner.axis, corner.right, 'w')
-    case '-w':
-      return new Corner(corner.axis, corner.right, '-b')
-    case 'b':
-      return new Corner(corner.axis, corner.right, '-w')
-    default:
-      console.error(corner)
-      throw new Error('invalid corner')
-  }
+// The baseCorner tells us what the scheme is for the cube.
+export const getAllCorners = (baseCorner: Corner): Corner[] => {
+    const corners: Corner[] = []
+    // rotate around one plane
+    corners.push(baseCorner)
+    let corner = nextCorner(baseCorner)
+    corners.push(corner)
+    corner = nextCorner(corner)
+    corners.push(corner)
+    corner = nextCorner(corner)
+    corners.push(corner)
+    // move to bottom
+    corner = rotate(corner, true)
+    corner = nextCorner(corner)
+    corner = rotate(corner, true)
+    corners.push(corner)
+    // rotate around this plane
+    corner = nextCorner(corner)
+    corners.push(corner)
+    corner = nextCorner(corner)
+    corners.push(corner)
+    corner = nextCorner(corner)
+    corners.push(corner)
+    return corners
 }
 
-export const completeCorner = (corner: Corner): Corner => {
-  switch (corner.axis) {
-    case 'r':
-      return completeRedCorner(corner)
+const cornersMatch = (a: Corner) => (b: Corner): boolean => {
+  let reorientedA = a
+  let reorientedB = b
+  let match = false
+  let turns = 3
+  while (reorientedA.axis === null) {
+    reorientedA = rotate(reorientedA)
   }
-  return corner
+  while (!match && turns--) {
+    match = reorientedA.axis === reorientedB.axis
+      && (reorientedA.right === reorientedB.right
+      || reorientedA.left === reorientedB.left)
+    reorientedB = rotate(reorientedB)
+  }
+  return match
+}
+
+const getMatchingCorner = (corners: Corner[]) => (corner: Corner): Corner | undefined => {
+  return corners.find(cornersMatch(corner))
+}
+
+export const completeCorner = (corner: Corner, baseCorner: Corner): Corner => {
+  // Don't do it in terms of absolute volues.  We need a base corner, rwb, xyz,
+  // that we can use.  The baseCorner tells us what the scheme is for the cube.
+  const allCorners: Corner[] = getAllCorners(baseCorner)
+  // find a matching corner
+  const matchedCorner: Corner | undefined = getMatchingCorner(allCorners)(corner)
+  if (!matchedCorner) {
+    console.error(corner)
+    throw new Error('invalid corner')
+  }
+  return matchedCorner
 }
