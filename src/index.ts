@@ -65,3 +65,45 @@ export const isEdge = (coords: Coords) => {
   const tally: CoordsTally = tallyCoords(coordsToString(coords))
   return tally.ends === 2
 }
+
+export class Corner {
+  constructor(
+    public axis: any,
+    public right: any,
+    public left: any,
+  ) {}
+}
+
+export const rotate = (corner: Corner, ccw?: boolean): Corner => {
+  return ccw
+    ? new Corner(
+      corner.right,
+      corner.left,
+      corner.axis,
+    )
+    : new Corner(
+      corner.left,
+      corner.axis,
+      corner.right,
+    )
+}
+
+const invert = (face: string): string => {
+  return face[0] === '-'
+    ? face.substring(1)
+    : `-${face}`
+}
+
+export const nextCorner = (corner: Corner, ccw?: boolean): Corner => {
+  return ccw
+    ? new Corner(
+      corner.axis,
+      corner.left,
+      invert(corner.right),
+    )
+    : new Corner(
+      corner.axis,
+      invert(corner.left),
+      corner.right,
+    )
+}

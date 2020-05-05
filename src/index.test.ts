@@ -1,4 +1,5 @@
 import * as mod from '.'
+import { Corner } from '.'
 
 describe('getting element from cube', () => {
   const cube = [
@@ -97,6 +98,74 @@ describe('face position', () => {
       [121, false],
     ])('.isEdge(%o, %s)', (coords, expected) => {
       expect(mod.isEdge(coords)).toBe(expected)
+    })
+  })
+})
+
+describe('Corner', () => {
+  describe('rotate', () => {
+    it('should change axis CW', () => {
+      const corner = new Corner('a', 'b', 'c')
+      const result = mod.rotate(corner)
+      expect(result.axis).toBe('c')
+      expect(result.right).toBe('a')
+      expect(result.left).toBe('b')
+    })
+
+    it('should change axis CCW', () => {
+      const corner = new Corner('a', 'b', 'c')
+      const result = mod.rotate(corner, true)
+      expect(result.axis).toBe('b')
+      expect(result.right).toBe('c')
+      expect(result.left).toBe('a')
+    })
+  })
+
+  describe('nextCorner', () => {
+    it('should work CW', () => {
+      const corner = new Corner('a', 'b', 'c')
+      let result = mod.nextCorner(corner)
+      expect(result.axis).toBe('a')
+      expect(result.right).toBe('-c')
+      expect(result.left).toBe('b')
+
+      result = mod.nextCorner(result)
+      expect(result.axis).toBe('a')
+      expect(result.right).toBe('-b')
+      expect(result.left).toBe('-c')
+
+      result = mod.nextCorner(result)
+      expect(result.axis).toBe('a')
+      expect(result.right).toBe('c')
+      expect(result.left).toBe('-b')
+
+      result = mod.nextCorner(result)
+      expect(result.axis).toBe('a')
+      expect(result.right).toBe('b')
+      expect(result.left).toBe('c')
+    })
+
+    it('should work CCW', () => {
+      const corner = new Corner('a', 'b', 'c')
+      let result = mod.nextCorner(corner, true)
+      expect(result.axis).toBe('a')
+      expect(result.right).toBe('c')
+      expect(result.left).toBe('-b')
+
+      result = mod.nextCorner(result, true)
+      expect(result.axis).toBe('a')
+      expect(result.right).toBe('-b')
+      expect(result.left).toBe('-c')
+
+      result = mod.nextCorner(result, true)
+      expect(result.axis).toBe('a')
+      expect(result.right).toBe('-c')
+      expect(result.left).toBe('b')
+
+      result = mod.nextCorner(result, true)
+      expect(result.axis).toBe('a')
+      expect(result.right).toBe('b')
+      expect(result.left).toBe('c')
     })
   })
 })
