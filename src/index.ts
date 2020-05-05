@@ -107,3 +107,27 @@ export const nextCorner = (corner: Corner, ccw?: boolean): Corner => {
       corner.right,
     )
 }
+
+const completeRedCorner = (corner: Corner): Corner => {
+  switch (corner.right) {
+    case 'w':
+      return new Corner(corner.axis, corner.right, 'b')
+    case '-b':
+      return new Corner(corner.axis, corner.right, 'w')
+    case '-w':
+      return new Corner(corner.axis, corner.right, '-b')
+    case 'b':
+      return new Corner(corner.axis, corner.right, '-w')
+    default:
+      console.error(corner)
+      throw new Error('invalid corner')
+  }
+}
+
+export const completeCorner = (corner: Corner): Corner => {
+  switch (corner.axis) {
+    case 'r':
+      return completeRedCorner(corner)
+  }
+  return corner
+}

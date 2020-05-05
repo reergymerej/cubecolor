@@ -168,4 +168,49 @@ describe('Corner', () => {
       expect(result.left).toBe('c')
     })
   })
+
+  xdescribe('all corners', () => {
+    it('should print each corner', () => {
+      let corner = new Corner('r', 'w', 'b')
+      console.log(corner)
+      corner = mod.nextCorner(corner)
+      console.log(corner)
+      corner = mod.nextCorner(corner)
+      console.log(corner)
+      expect(corner).toEqual({axis: 'r', right: '-w', left: '-b'})
+      corner = mod.nextCorner(corner)
+      console.log(corner)
+
+      // move to bottom
+      corner = mod.rotate(corner, true)
+      // console.log(corner)
+      corner = mod.nextCorner(corner)
+      // console.log(corner)
+      corner = mod.rotate(corner, true)
+      console.log(corner)
+
+      corner = mod.nextCorner(corner)
+      console.log(corner)
+      corner = mod.nextCorner(corner)
+      console.log(corner)
+      corner = mod.nextCorner(corner)
+      console.log(corner)
+    })
+  })
+
+  fdescribe('corner completion', () => {
+    describe('given a corner with two faces described CW', () => {
+      it.each`
+        axis | right | expected
+        ${'r'} | ${'w'} | ${'b'}
+        ${'r'} | ${'-b'} | ${'w'}
+        ${'r'} | ${'-w'} | ${'-b'}
+        ${'r'} | ${'b'} | ${'-w'}
+      `('should return the third face', ({ axis, right, expected }) => {
+        const input: Corner = new Corner(axis, right, null)
+        const output: Corner = mod.completeCorner(input)
+        expect(output).toEqual({axis, right, left: expected})
+      })
+    })
+  })
 })
